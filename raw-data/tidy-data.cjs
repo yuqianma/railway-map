@@ -9,6 +9,8 @@ const stationNameSet = new Set();
 
 const trips = [];
 
+const TimeRange = [Infinity, -Infinity];
+
 const locations = JSON.parse(fs.readFileSync(path.join(__dirname, "./locations.json")));
 
 async function main() {
@@ -58,7 +60,19 @@ async function main() {
 		trip.trainNo = trainNo;
 		trip.waypoints = trainData.map(t => {
 			const coords = locations[`${t.station_name}站`].location;
-			const timestamp = new Date(`2022-07-31 ${t.arrive_time}`).getTime();
+			const DATE_STRING = "2022-07-31";
+			let timestamp = new Date(`${DATE_STRING} ${t.arrive_time}`).getTime();
+			if (isNaN(timestamp)) {
+				timestamp = new Date(`${DATE_STRING} ${t.start_time}`).getTime();
+			}
+
+			if (isNaN(timestamp)) {
+				console.log(trainNo, timestamp);
+				throw new Error("timestamp is NaN");
+			}
+
+			TimeRange[0] = Math.min(TimeRange[0], timestamp);
+			TimeRange[1] = Math.max(TimeRange[1], timestamp);
 
 			return {
 				coords,
@@ -67,6 +81,8 @@ async function main() {
 		});
 		trips.push(trip);
 	});
+
+	console.log(TimeRange);
 
 	fs.writeFileSync(path.join(__dirname, "./trips.json"), JSON.stringify(trips));
 

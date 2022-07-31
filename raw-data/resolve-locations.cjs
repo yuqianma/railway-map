@@ -21,7 +21,7 @@ function fetchNamesLocation(names) {
 		}
 
 		const c = new Crawler({
-			rateLimit: 20,
+			rateLimit: 60,
 			jQuery: false,
 			json: true,
 			callback: (error, response, done) => {
@@ -31,9 +31,9 @@ function fetchNamesLocation(names) {
 					console.error('[error]', name, error || response.body);
 				} else {
 					const result = response.body;
-					const geocode = result.geocodes[0];
+					const geocode = result.pois[0];
 					if (geocode) {
-						let { province, city, location } = geocode;
+						let { pname: province, cityname: city, location } = geocode;
 
 						city = city.length ? city : null;
 						const loc = location.split(',');
@@ -49,6 +49,7 @@ function fetchNamesLocation(names) {
 							invalid: true,
 							location: []
 						}
+						console.log(name, 'invalid!!!!!!');
 					}
 				}
 
@@ -62,7 +63,8 @@ function fetchNamesLocation(names) {
 
 		names.forEach(name => {
 			c.queue({
-				uri: `https://restapi.amap.com/v3/geocode/geo?key=${process.env.AMAP_KEY}&address=${encodeURIComponent(name)}`,
+				// uri: `https://restapi.amap.com/v3/geocode/geo?key=${process.env.AMAP_KEY}&address=${encodeURIComponent(name)}`,
+				uri: `https://restapi.amap.com/v3/place/text?key=${process.env.AMAP_KEY}&keywords=${encodeURIComponent(name)}&types=${encodeURIComponent("火车站")}`,
 				locationName: name,
 			});
 		});
@@ -78,6 +80,7 @@ async function recordNamesLocation(unresolvedNames) {
 		Object.assign(LocDoc, nameLocationMap);
 
 		const formatJson = JSON.stringify(LocDoc, null, 2);
+		// console.log(LocDoc);
 		fs.writeFileSync(LOC_DOC_PATH, formatJson);
 		console.log(`${LOC_DOC_PATH} updated`);
 	} else {
