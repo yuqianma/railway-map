@@ -87,8 +87,8 @@ function App({
     new TripsLayer({
       id: 'trips',
       data: "trips.json",
-      getPath: d => d.waypoints.map(p => p.coords),
-      getTimestamps: d => d.waypoints.map(p => p.timestamp),
+      getPath: d => d.waypoints.map((p: any) => p.coords),
+      getTimestamps: d => d.waypoints.map((p: any) => p.timestamp),
       // getColor: d => (d.vendor === 0 ? theme.trailColor0 : theme.trailColor1),
       getColor: [0, 187, 221],
       opacity: 0.8,
