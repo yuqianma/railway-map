@@ -7,6 +7,8 @@ import './App.css';
 
 const TimeRange = [ 1659216960000, 1659282420000 ];
 
+const MapboxAccessToken = "pk.eyJ1IjoibWF5cTA0MjIiLCJhIjoiY2phamMwOHV4MjllajMzbnFyeTMwcmZvYiJ9.aFMw4Aws5zY9Y4NwYqFMlQ";
+
 const ambientLight = new AmbientLight({
   color: [255, 255, 255],
   intensity: 1.0
@@ -110,7 +112,7 @@ function App({
         initialViewState={initialViewState}
         controller={true}
       >
-        <Map reuseMaps mapStyle={mapStyle} mapboxAccessToken={import.meta.env.VITE_MapboxAccessToken} />
+        <Map reuseMaps mapStyle={mapStyle} mapboxAccessToken={MapboxAccessToken} />
       </DeckGL>
 
       <div className="time">{new Date(time).toLocaleString()}</div>
