@@ -64,16 +64,19 @@ function App({
   animationSpeed = 100_000
 }) {
   const [time, setTime] = useState(1659216960000);
+  const playing = useRef(true);
   const animation = useRef<number>(0);
   
   const animate = () => {
-    setTime(t => {
-      const nextTime = t + animationSpeed;
-      if (nextTime > TimeRange[1]) {
-        return TimeRange[0];
-      }
-      return nextTime;
-    });
+    if (playing.current) {
+      setTime(t => {
+        const nextTime = t + animationSpeed;
+        if (nextTime > TimeRange[1]) {
+          return TimeRange[0];
+        }
+        return nextTime;
+      });
+    }
     animation.current = window.requestAnimationFrame(animate);
   };
 
@@ -115,7 +118,7 @@ function App({
         <Map reuseMaps mapStyle={mapStyle} mapboxAccessToken={MapboxAccessToken} />
       </DeckGL>
 
-      <div className="time">{new Date(time).toLocaleString()}</div>
+      <div className="time" onClick={() => playing.current = !playing.current}>{new Date(time).toLocaleString()}</div>
     </>
   );
 }
