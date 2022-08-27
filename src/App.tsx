@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Map } from 'react-map-gl';
 import { AmbientLight, PointLight, LightingEffect } from '@deck.gl/core/typed';
 import DeckGL from '@deck.gl/react/typed';
 import {TripsLayer} from '@deck.gl/geo-layers/typed';
+import mapboxgl from "mapbox-gl";
 import './App.css';
 
 const TimeRange = [ 1659216960000, 1659282420000 ];
@@ -55,6 +56,37 @@ const INITIAL_VIEW_STATE2 = {
 
 const MAP_STYLE = 'mapbox://styles/mapbox/dark-v10';
 
+function filterLayers(map: mapboxgl.Map, worldview: string) {
+  console.log(map, worldview);
+  // The "admin-0-boundary-disputed" layer shows boundaries
+  // at this level that are known to be disputed.
+  map.setFilter('admin-0-boundary-disputed', [
+  'all',
+  ['==', ['get', 'disputed'], 'true'],
+  ['==', ['get', 'admin_level'], 0],
+  ['==', ['get', 'maritime'], 'false'],
+  ['match', ['get', 'worldview'], ['all', worldview], true, false]
+  ]);
+  // The "admin-0-boundary" layer shows all boundaries at
+  // this level that are not disputed.
+  map.setFilter('admin-0-boundary', [
+  'all',
+  ['==', ['get', 'admin_level'], 0],
+  ['==', ['get', 'disputed'], 'false'],
+  ['==', ['get', 'maritime'], 'false'],
+  ['match', ['get', 'worldview'], ['all', worldview], true, false]
+  ]);
+  // The "admin-0-boundary-bg" layer helps features in both
+  // "admin-0-boundary" and "admin-0-boundary-disputed" stand
+  // out visually.
+  map.setFilter('admin-0-boundary-bg', [
+  'all',
+  ['==', ['get', 'admin_level'], 0],
+  ['==', ['get', 'maritime'], 'false'],
+  ['match', ['get', 'worldview'], ['all', worldview], true, false]
+  ]);
+}
+
 function App({
   trailLength = 180,
   initialViewState = INITIAL_VIEW_STATE2,
@@ -66,6 +98,12 @@ function App({
   const [time, setTime] = useState(1659216960000);
   const playing = useRef(true);
   const animation = useRef<number>(0);
+  const mapRef = useRef<any>();
+
+  const onMapLoad = useCallback(() => {
+    const map = mapRef.current!.getMap() as mapboxgl.Map;
+    filterLayers(map, "CN");
+  }, []);
   
   const animate = () => {
     if (playing.current) {
@@ -115,7 +153,7 @@ function App({
         initialViewState={initialViewState}
         controller={true}
       >
-        <Map reuseMaps mapStyle={mapStyle} mapboxAccessToken={MapboxAccessToken} />
+        <Map reuseMaps ref={mapRef} onLoad={onMapLoad} mapStyle={mapStyle} mapboxAccessToken={MapboxAccessToken} />
       </DeckGL>
 
       <div className="time" onClick={() => playing.current = !playing.current}>{new Date(time).toLocaleString()}</div>
