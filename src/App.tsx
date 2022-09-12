@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MapCanvas } from "./components";
+import { MapCanvas, Timeline } from "./components";
 import './App.css';
 
 function App() {
   return (
     <>
-      <MapCanvas />
+      <div className="map-container">
+        <MapCanvas />
+      </div>
+      <Timeline />
     </>
   );
 }

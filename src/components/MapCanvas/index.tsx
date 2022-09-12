@@ -4,6 +4,7 @@ import { AmbientLight, PointLight, LightingEffect } from '@deck.gl/core/typed';
 import DeckGL from '@deck.gl/react/typed';
 import {TripsLayer} from '@deck.gl/geo-layers/typed';
 import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 import './index.css';
 
 const TimeRange = [ 1659216960000, 1659282420000 ];
@@ -57,7 +58,6 @@ const INITIAL_VIEW_STATE2 = {
 const MAP_STYLE = 'mapbox://styles/mapbox/dark-v10';
 
 function filterLayers(map: mapboxgl.Map, worldview: string) {
-  console.log(map, worldview);
   // The "admin-0-boundary-disputed" layer shows boundaries
   // at this level that are known to be disputed.
   map.setFilter('admin-0-boundary-disputed', [
