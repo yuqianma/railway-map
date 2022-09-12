@@ -1,0 +1,10 @@
+.info-pane {
+	position: absolute;
+	top: 1rem;
+	left: 1rem;
+	background: #222;
+	padding: 1rem;
+	width: 15rem;
+	height: 80%;
+	border-radius: 1rem;
+}

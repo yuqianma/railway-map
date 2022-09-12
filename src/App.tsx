@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MapCanvas, Timeline } from "./components";
+import { MapCanvas, Timeline, InfoPane } from "./components";
 import './App.css';
 
 function App() {
@@ -7,6 +7,7 @@ function App() {
     <>
       <div className="map-container">
         <MapCanvas />
+        <InfoPane />
       </div>
       <Timeline />
     </>
