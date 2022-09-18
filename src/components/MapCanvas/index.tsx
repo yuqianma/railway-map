@@ -94,9 +94,9 @@ export function MapCanvas({
   theme = DEFAULT_THEME,
   loopLength = 1_000, // unit corresponds to the timestamp in source data
   animationSpeed = 100_000,
-	currentTime = TimeRange[0],
+  timeRange = TimeRange,
 }) {
-  const [time, setTime] = useState(currentTime);
+  const [time, setTime] = useState(timeRange[0]);
   const playing = useRef(true);
   const animation = useRef<number>(0);
   const mapRef = useRef<any>();
@@ -110,8 +110,8 @@ export function MapCanvas({
     if (playing.current) {
       setTime(t => {
         const nextTime = t + animationSpeed;
-        if (nextTime > TimeRange[1]) {
-          return TimeRange[0];
+        if (nextTime > timeRange[1]) {
+          return timeRange[0];
         }
         return nextTime;
       });
@@ -121,10 +121,14 @@ export function MapCanvas({
 
   useEffect(
     () => {
+      setTime(timeRange[0]);
       animation.current = window.requestAnimationFrame(animate);
-      return () => window.cancelAnimationFrame(animation.current);
+      return () => {
+        window.cancelAnimationFrame(animation.current);
+        animation.current = 0;
+      }
     },
-    [animation]
+    [animation, timeRange[0], timeRange[1]]
   );
 
   const layers = [

@@ -1,17 +1,19 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
 import { MapCanvas, Timeline, InfoPane } from "./components";
+import { observer } from "mobx-react-lite";
+import { useStore } from "./useStore";
 import './App.css';
 
-function App() {
+const App = observer(() => {
+  const store = useStore();
   return (
     <>
       <div className="map-container">
-        <MapCanvas />
+        <MapCanvas timeRange={store.timeRange} />
         <InfoPane />
       </div>
       <Timeline />
     </>
   );
-}
+});
 
-export default App
+export default App;
