@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
+    "@mui/material": "^5.10.5",
     "deck.gl": "^8.8.6",
     "mapbox-gl": "^2.9.2",
     "mobx": "^6.6.2",

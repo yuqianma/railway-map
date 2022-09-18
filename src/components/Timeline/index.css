@@ -4,8 +4,5 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-}
-
-input[type=range] {
-	width: 100%;
+	align-items: center;
 }
