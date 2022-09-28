@@ -19,6 +19,7 @@ export const Timeline = observer(() => {
 				<Slider
 					min={initTimeRangeRef.current[0]}
 					max={initTimeRangeRef.current[1]}
+					valueLabelFormat={value => new Date(value).toLocaleString()}
 					value={store.timeRange}
 					onChange={handleChange}
 					valueLabelDisplay="auto"

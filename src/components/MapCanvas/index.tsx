@@ -97,9 +97,10 @@ export function MapCanvas({
   timeRange = TimeRange,
 }) {
   const [time, setTime] = useState(timeRange[0]);
-  const playing = useRef(true);
+  const playing = useRef(false);
   const animation = useRef<number>(0);
   const mapRef = useRef<any>();
+  const dataRef = useRef<any>([]);
 
   const onMapLoad = useCallback(() => {
     const map = mapRef.current!.getMap() as mapboxgl.Map;
@@ -131,10 +132,22 @@ export function MapCanvas({
     [animation, timeRange[0], timeRange[1]]
   );
 
+  useEffect(
+    () => {
+      (async () => {
+        const data = await fetch('trips.json').then(res => res.json());
+        dataRef.current = data;
+        // TODO
+        playing.current = true;
+      })();
+    },
+    []
+  );
+
   const layers = [
     new TripsLayer({
       id: 'trips',
-      data: "trips.json",
+      data: dataRef.current,
       getPath: d => d.waypoints.map((p: any) => p.coords),
       getTimestamps: d => d.waypoints.map((p: any) => p.timestamp),
       // getColor: d => (d.vendor === 0 ? theme.trailColor0 : theme.trailColor1),
