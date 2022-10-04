@@ -4,7 +4,10 @@ const Crawler = require('crawler');
 
 const LOC_DOC_PATH = path.join(__dirname, './locations.json');
 
-const LocDoc = {};
+const LocDoc = JSON.parse(fs.readFileSync(LOC_DOC_PATH));
+
+// uri: `https://restapi.amap.com/v3/geocode/geo?key=${process.env.AMAP_KEY}&address=${encodeURIComponent(name)}`,
+const getApiUrl = (queryName) => `https://restapi.amap.com/v3/place/text?key=${process.env.AMAP_KEY}&keywords=${encodeURIComponent(queryName)}&types=${encodeURIComponent("火车站")}`;
 
 function fetchNamesLocation(names) {
 	if (!process.env.AMAP_KEY) {
@@ -45,11 +48,20 @@ function fetchNamesLocation(names) {
 
 						console.log(name, province, location);
 					} else {
-						nameLocationMap[name] = {
-							invalid: true,
-							location: []
+						if (response.options.fallback) {
+							nameLocationMap[name] = {
+								invalid: true,
+								location: []
+							}
+							console.log(name, 'invalid!!!!!!');
+						} else {
+							// try second time with "~站"
+							c.queue({
+								uri: getApiUrl(name),
+								locationName: name,
+								fallback: true,
+							});
 						}
-						console.log(name, 'invalid!!!!!!');
 					}
 				}
 
@@ -62,9 +74,9 @@ function fetchNamesLocation(names) {
 		});
 
 		names.forEach(name => {
+			const queryName = name.replace(/站$/, '');
 			c.queue({
-				// uri: `https://restapi.amap.com/v3/geocode/geo?key=${process.env.AMAP_KEY}&address=${encodeURIComponent(name)}`,
-				uri: `https://restapi.amap.com/v3/place/text?key=${process.env.AMAP_KEY}&keywords=${encodeURIComponent(name)}&types=${encodeURIComponent("火车站")}`,
+				uri: getApiUrl(queryName),
 				locationName: name,
 			});
 		});
@@ -90,6 +102,8 @@ async function recordNamesLocation(unresolvedNames) {
 
 const nameList = JSON.parse(fs.readFileSync(path.join(__dirname, './station_names.json'), 'utf8'));
 
-const nameListToResolve = nameList.map(n => `${n}站`);
+let unresolvedNames = nameList.map(name => `${name}站`).filter(name => !LocDoc[name] || LocDoc[name].invalid);
 
-recordNamesLocation(nameListToResolve);
+// console.log(unresolvedNames);
+
+recordNamesLocation(unresolvedNames);
