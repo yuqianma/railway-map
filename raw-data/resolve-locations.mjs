@@ -1,8 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const Crawler = require('crawler');
+import fs from "fs";
+import path from "path";
+import * as url from "url";
+import Crawler from "crawler";
+import { LOCATIONS_FILE } from "./constants.mjs";
 
-const LOC_DOC_PATH = path.join(__dirname, './locations.json');
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+
+const LOC_DOC_PATH = path.join(__dirname, LOCATIONS_FILE);
 
 const LocDoc = JSON.parse(fs.readFileSync(LOC_DOC_PATH));
 
@@ -104,6 +108,6 @@ const nameList = JSON.parse(fs.readFileSync(path.join(__dirname, './station_name
 
 let unresolvedNames = nameList.map(name => `${name}站`).filter(name => !LocDoc[name] || LocDoc[name].invalid);
 
-// console.log(unresolvedNames);
+console.log(unresolvedNames.length);
 
-recordNamesLocation(unresolvedNames);
+// recordNamesLocation(unresolvedNames);

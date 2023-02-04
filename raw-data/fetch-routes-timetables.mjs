@@ -1,11 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const Crawler = require("crawler");
+import fs from "fs";
+import path from "path";
+import * as url from "url";
+import Crawler from "crawler";
+import { USER_AGENT, TIMETABLES_FOLDER_NAME } from "./constants.mjs";
 
-const USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36";
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
-const TIMETABLES_FOLDER = "routes-timetables";
-const TIMETABLES_FOLDER_PATH = path.join(__dirname, TIMETABLES_FOLDER);
+const TIMETABLES_FOLDER_PATH = path.join(__dirname, TIMETABLES_FOLDER_NAME);
 
 const routesOnDateFile = process.argv[2];
 
@@ -48,11 +49,30 @@ const c = new Crawler({
 	jQuery: false,
 	callback: function (error, res, done) {
 		if (error) {
-			console.log(error);
-		} else {
-			const filepath = path.join(TIMETABLES_FOLDER_PATH, res.options.filename);
-			fs.createWriteStream(filepath).write(res.body);
+			console.error("error:", res.options.trainNo);
+			console.error(error);
+			done();
+			return;
 		}
+
+		let json = {};
+		try {
+			json = JSON.parse(res.body);
+		} catch (e) {
+			console.error(`${res.options.trainNo} json parse error`);
+			done();
+			return;
+		}
+
+		if (!json.data.data) {
+			console.error(`${res.options.trainNo} data null, re-queue`);
+			queueTrainNo(res.options.trainNo);
+			done();
+			return;
+		}
+
+		const filepath = path.join(TIMETABLES_FOLDER_PATH, res.options.filename);
+		fs.createWriteStream(filepath).write(res.body);
 		// time left
 		const timeLeft = (Date.now() - startTime) / 1000 / (toFetchRouteNos.length - c.queueSize) * c.queueSize | 0;
 		console.log(`time left: ${timeLeft}s`, `queue size: ${c.queueSize}`);
@@ -60,13 +80,15 @@ const c = new Crawler({
 	}
 });
 
-// [...toFetchRouteNos].forEach(trainNo => {
-// 	const url = `https://kyfw.12306.cn/otn/queryTrainInfo/query?leftTicketDTO.train_no=${trainNo}&leftTicketDTO.train_date=${year}-${month}-${date}&rand_code=`;
-// 	// console.log(url);
-// 	c.queue({
-//     uri: url,
-//     filename: `${trainNo}.json`,
-// 		userAgent: USER_AGENT
-// 	});
-// });
+function queueTrainNo(trainNo) {
+	const url = `https://kyfw.12306.cn/otn/queryTrainInfo/query?leftTicketDTO.train_no=${trainNo}&leftTicketDTO.train_date=${year}-${month}-${date}&rand_code=`;
+	// console.log(url);
+	c.queue({
+    uri: url,
+		trainNo,
+    filename: `${trainNo}.json`,
+		userAgent: USER_AGENT
+	});
+}
 
+[...toFetchRouteNos].forEach(queueTrainNo);
