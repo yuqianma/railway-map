@@ -9,7 +9,7 @@ const App = observer(() => {
     <>
       <div className="map-container">
         <MapCanvas timeRange={store.timeRange} />
-        <InfoPane />
+        {/* <InfoPane /> */}
       </div>
       <Timeline />
     </>

@@ -55,7 +55,7 @@ const INITIAL_VIEW_STATE2 = {
   bearing: 0
 };
 
-const MAP_STYLE = 'mapbox://styles/mapbox/dark-v10';
+const MAP_STYLE = 'mapbox://styles/mapbox/dark-v11';
 
 function filterLayers(map: mapboxgl.Map, worldview: string) {
   // The "admin-0-boundary-disputed" layer shows boundaries
